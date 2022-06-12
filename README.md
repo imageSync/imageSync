@@ -52,16 +52,15 @@ imageSync init
 
 上面这几个参数信息，与我们平时使用命令行的`docker login`命令时所用到的概念是一样的。过去我们使用`docker login`或者`docker push`时，需要用到`账号、密码、域名、tag`等等，此处也是使用的这些内容。
 
+<br>
+
 > 不过`imageSync`命令比较方便一些，只需要在家目录配置文件（~/.imageSync）中配置一次。 随后就可以随意使用命令行工具imageSync进行对镜像的快速操作了。
 
 <br>
 
-
-
-下文借用阿里云的一部分文档来演示说明一下：
-
-
 ```bash
+这里借用阿里云的一部分文档来演示说明一下：
+
 （原文）将镜像推送到阿里云Registry中时：
 
 $ docker login --username=**** registry.cn-shanghai.aliyuncs.com
