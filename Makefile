@@ -1,19 +1,33 @@
+######################################
+# 全局变量
+######################################
+#要编译的命令名称
 NAME := imageSync
-VERSION := 1.0.9
+#版本
+VERSION := 0.0.2
+#编译输出目录
 OUTPUT_PATH := ./build/${VERSION}/
-
-build-mac: baoName := ${NAME}-${VERSION}-mac-amd64
-build-linux: baoName := ${NAME}-${VERSION}-linux-amd64
-build-windows: baoName := ${NAME}-${VERSION}-windows-amd64
+#是否开启cgo（0代表不开启，1代表开始）
+CGO_STATUS := 0
 
 
+######################################
+# 局部变量
+######################################
+build_mac: baoName := ${NAME}-${VERSION}-mac-amd64
+build_linux: baoName := ${NAME}-${VERSION}-linux-amd64
+build_windows: baoName := ${NAME}-${VERSION}-windows-amd64
 
 
 
-.PHONY: clean start build-mac
-all: clean start build-mac
+
+#指定加载哪些伪造的Target
+.PHONY: clean start build_mac build-linux build_windows
+#指定缺省状态下执行哪些Target
+all: clean start build_mac build_linux build_windows
 
 
+#Target：主要用来清理一些开发和编译过程中的无用文件
 clean:
 	rm -rf ./build/*
 	rm -rf ./*.log
@@ -21,15 +35,17 @@ clean:
 	rm -rf ./.imageSync
 
 
+#Target：幂等性的检测一下项目依赖
 start:
 	go mod tidy
 
 
-build-linux:
+#Target：交叉编译到Linux平台
+build_linux:
 	mkdir -p ${OUTPUT_PATH}${baoName}/
 	GOARCH=amd64 \
 	GOOS=linux \
-	CGO_ENABLED=1 \
+	CGO_ENABLED=${CGO_STATUS} \
 	CGO_LDFLAGS="-static" \
 	CC=x86_64-linux-musl-gcc \
 	CXX=x86_64-linux-musl-g++ \
@@ -37,11 +53,12 @@ build-linux:
 	tar -zcvf ${OUTPUT_PATH}${baoName}.tar.gz -C ${OUTPUT_PATH} ${baoName}
 
 
-build-windows:
+#Target：交叉编译到windows平台
+build_windows:
 	mkdir -p ${OUTPUT_PATH}${baoName}/
 	GOARCH=amd64 \
 	GOOS=windows \
-	CGO_ENABLED=1 \
+	CGO_ENABLED=${CGO_STATUS} \
 	CGO_CFLAGS="-g -O2 -Wno-return-local-addr" \
 	CC=x86_64-w64-mingw32-gcc \
 	CXX=x86_64-w64-mingw32-g++ \
@@ -49,8 +66,13 @@ build-windows:
 	tar -zcvf ${OUTPUT_PATH}${baoName}.tar.gz -C ${OUTPUT_PATH} ${baoName}
 
 
-build-mac:
+#Target：交叉编译到Mac平台
+build_mac:
 	mkdir -p ${OUTPUT_PATH}${baoName}/
-	GOARCH=amd64 GOOS=darwin CGO_ENABLED=1 \
+	GOARCH=amd64 \
+	GOOS=darwin \
+	CGO_ENABLED=${CGO_STATUS} \
 	go build -o "${OUTPUT_PATH}${baoName}/${NAME}"
 	tar -zcvf ${OUTPUT_PATH}${baoName}.tar.gz -C ${OUTPUT_PATH} ${baoName}
+	cp "${OUTPUT_PATH}${baoName}/${NAME}" /usr/local/bin/
+	chmod +x "${OUTPUT_PATH}${baoName}/${NAME}"

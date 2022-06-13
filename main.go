@@ -1,41 +1,47 @@
 package main
 
 import (
-    "fmt"
-    "imageSync/src"
-    "os"
-    "runtime"
+	"fmt"
+	"imageSync/src"
+	"runtime"
 )
 
 func main() {
 
-    //命令行参数（含子命令的实例化）
-    imageName := src.NewOptions()
-    if len(imageName) == 0 {
-        os.Exit(33)
-    }
+	//命令行参数（含子命令的实例化）
+	imageName := src.NewOptions()
+	if len(imageName) == 0 {
+		src.Exit(0, "init命令执行完成")
+	}
 
-    //判断当前系统类型
-    switch runtime.GOOS {
-    case "linux":
-        fmt.Println("linux")
+	//判断当前系统类型
+	switch runtime.GOOS {
+	case "linux":
+		/*
+		   这里没有判断linux上的docker服务是否运行，注释记录一下，后面有需要的话再追加上
+		*/
+		fmt.Println("当前操作系统为：Linux")
+		src.Pull(imageName)
+		src.Push(imageName)
 
-    case "windows":
-        fmt.Println("windows")
+	case "windows":
+		/*
+		   这里没有判断windows上的docker服务是否运行，注释记录一下，后面有需要的话再追加上
+		*/
+		fmt.Println("当前操作系统为：Windows")
+		src.Pull(imageName)
+		src.Push(imageName)
 
-    case "darwin":
-        fmt.Println("当前操作系统为：MacOS...")
+	case "darwin":
+		fmt.Println("当前操作系统为：MacOS")
+		if src.MacDockerRunCheck() { //判断Docker daemon是否启动
+			src.Pull(imageName) //拉取镜像
+			src.Push(imageName) //推送镜像
+		} else {
+			src.Exit(2, "docker daemon未启动")
+		}
 
-        //判断Docker daemon是否启动
-        if src.MacDockerRunCheck() {
-            src.Pull(imageName) //拉取镜像
-            src.Push(imageName) //推送镜像
-        } else {
-            os.Exit(1)
-        }
-
-    default:
-        fmt.Println("无法判断当前操作系统类型，程序停止运行....")
-        os.Exit(1)
-    }
+	default:
+		src.Exit(1, "无法判断当前操作系统类型，imageSync停止运行")
+	}
 }
