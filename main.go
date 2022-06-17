@@ -9,7 +9,7 @@ import (
 func main() {
 
 	//命令行参数（含子命令的实例化）
-	imageName := src.NewOptions()
+	imageName := src.NewCmdParams()
 	if len(imageName) == 0 {
 		src.Exit(0, "init命令执行完成")
 	}

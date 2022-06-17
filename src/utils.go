@@ -1,39 +1,15 @@
 package src
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/wxnacy/wgo/arrays"
-	"io"
 	"os"
 	"strings"
 )
-
-// FormatOut 格式化输出
-func FormatOut(out io.Reader) {
-	//方式一
-	//io.Copy(os.Stdout, out)
-
-	//方式二
-	//buf := new(bytes.Buffer)
-	//buf.ReadFrom(out)
-	//fmt.Println(buf)
-
-	//方式三
-	for {
-		oneLine, err := bufio.NewReader(out).ReadBytes('\n')
-		if err != nil {
-			break
-		}
-		tmpMap := make(map[string]interface{})
-		json.Unmarshal(oneLine, &tmpMap)
-		fmt.Println(tmpMap)
-	}
-}
 
 // GetImageInfo 获取image的属性
 func GetImageInfo() {
@@ -70,6 +46,7 @@ func GetImageInfo() {
 	}
 }
 
+// Exit 更优雅的退出进程
 func Exit(code int, msg string) {
 	fmt.Println(msg)
 	os.Exit(code)
