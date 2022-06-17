@@ -7,29 +7,8 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 	"strings"
 )
-
-var user User
-
-func init() {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		panic(err)
-	}
-	defaultConfigPath := homeDir + "/.imageSync"
-	viper.SetConfigFile(defaultConfigPath)
-	viper.SetConfigType("toml")
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("读取配置文件失败，请执行imagesync init命令，生成默认配置文件，并对内容进行修改...", err)
-		return
-	}
-
-	env := viper.GetString("env")
-	user = NewUser(WithUsername(env+".username"), WithPassword(env+".password"), WithServerAddress(env+".server_address"), WithImageTag(env+".image_tag"))
-}
 
 // Pull 拉取docker镜像
 func Pull(imageName string) {
@@ -43,7 +22,7 @@ func Pull(imageName string) {
 		panic(err)
 	}
 	defer out.Close()
-	fmt.Println("拉取镜像...")
+	fmt.Println("\n\n\n拉取镜像...")
 	FormatOut(out, "pull")
 }
 
@@ -51,9 +30,9 @@ func Pull(imageName string) {
 func Push(imageName string) {
 	//实例化一个Docker认证客户端
 	authConfig := types.AuthConfig{
-		Username:      user.Username,
-		Password:      user.Password,
-		ServerAddress: user.ServerAddress,
+		Username:      UserConfig.Username,
+		Password:      UserConfig.Password,
+		ServerAddress: UserConfig.ServerAddress,
 	}
 	encodedJSON, _ := json.Marshal(authConfig)                //结构体转换为json
 	authStr := base64.URLEncoding.EncodeToString(encodedJSON) //进行Base64编码
@@ -75,7 +54,7 @@ func Push(imageName string) {
 	if err != nil {
 		return
 	}
-	fmt.Println("\n\n\n\n\n\n推送镜像...")
+	fmt.Println("\n\n\n推送镜像...")
 	FormatOut(out, "push")
 
 	//判断imageTag是否是以阿里云公有仓库地址为开头
@@ -83,10 +62,10 @@ func Push(imageName string) {
 		urlList := strings.Split(imageNameTag, ".cn-shanghai.aliyuncs.com")
 		urlList[0] = urlList[0] + "-vpc.cn-shanghai.aliyuncs.com"
 		urlList2 := strings.Join(urlList, "")
-		fmt.Printf("\n新的镜像地址为（公网）：" + imageNameTag + "\n")
-		fmt.Printf("新的镜像地址为（VPC）：" + urlList2 + "\n\n")
+		fmt.Printf("\n\n新的镜像地址为（公网）：" + imageNameTag + "\n")
+		fmt.Printf("新的镜像地址为（VPC）：" + urlList2 + "\n\n\n")
 	} else {
-		fmt.Printf("\n新的镜像地址为（公网）：" + imageNameTag + "\n\n")
+		fmt.Printf("\n\n新的镜像地址为（公网）：" + imageNameTag + "\n\n\n")
 	}
 
 }
@@ -104,7 +83,7 @@ func imageTagRename(imageName string) (string, string) {
 	//repoTag3 := strings.Replace(repoTag2, ".", "-", -1)
 
 	//获取配置文件中的image_tag内容
-	imageTag := user.ImageTag
+	imageTag := UserConfig.ImageTag
 
 	//把:号替换为空
 	imageTag2 := strings.Replace(imageTag, ":", "", -1)

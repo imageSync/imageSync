@@ -2,17 +2,17 @@ package src
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 	"os"
 	"strings"
 )
 
+var UserConfig User
+
 // NewCmdParams 命令行参数
 func NewCmdParams() string {
 	//定义子命令
-	init := pflag.NewFlagSet("init", pflag.ExitOnError)
+	init := pflag.NewFlagSet("ReadConfig", pflag.ExitOnError)
 
 	//定义命令行参数
 	image := pflag.StringP("image", "i", "", "海外的镜像地址（格式：docker.io/nginx:1.21.6）")
@@ -22,58 +22,39 @@ func NewCmdParams() string {
 	if len(os.Args) < 2 {
 		fmt.Println("缺少运行参数...")
 		os.Exit(1)
-	}
+	} else {
+		//系统参数的第一位时main，判断第二位上的内容是什么，如果是init则执行对应的代码块，否则就去执行普通的命令行参数
+		switch os.Args[1] {
+		case "init":
+			if err := init.Parse(os.Args[2:]); err != nil {
+				Exit(33, "加载init命令失败")
+			}
+			initConfig() //初始化配置文件
+			return ""
 
-	//如果env参数长度为0，则强制env=default
-	if len(*env) == 0 {
-		viper.Set("env", "defautl")
-	}
+		default:
+			//接收命令行参数
+			pflag.CommandLine.SetNormalizeFunc(wordSepNormalizeFunc)
+			pflag.Usage = myUsage
+			pflag.Parse()
 
-	//系统参数的第一位时main，判断第二位上的内容是什么，如果是init则执行对应的代码块，否则就去执行普通的命令行参数
-	switch os.Args[1] {
-	case "init":
-		init.Parse(os.Args[2:])
-		initConfig() //初始化配置文件
-		return ""
+			//如果env参数长度为0，则强制env=default
+			if len(*env) != 0 {
+				UserConfig = NewUser(WithUsername(*env+".username"), WithPassword(*env+".password"), WithServerAddress(*env+".server_address"), WithImageTag(*env+".image_tag"))
+				fmt.Println(*env + ".username")
+			} else {
+				UserConfig = NewUser(WithUsername("default.username"), WithPassword("default.password"), WithServerAddress("default.server_address"), WithImageTag("default.image_tag"))
+			}
 
-	default:
-		//接收命令行参数
-		pflag.CommandLine.SetNormalizeFunc(wordSepNormalizeFunc)
-		pflag.Usage = myUsage
-		pflag.Parse()
-
-		//如果没有输入命令行参数，则终止服务
-		if len(*image) == 0 {
-			fmt.Println("参数值不能为空... \033[1;31;8m（输入 --help 查看命令详细用法）\033[0m")
-			os.Exit(1)
+			//如果没有输入命令行参数，则终止服务
+			if len(*image) == 0 {
+				fmt.Println("参数值不能为空... \033[1;31;8m（输入 --help 查看命令详细用法）\033[0m")
+				os.Exit(1)
+			}
+			return *image
 		}
-		return *image
 	}
-}
-
-//初始化配置文件
-func initConfig() {
-	viper.SetDefault("env", "default")
-	viper.SetDefault("default.username", "admin")
-	viper.SetDefault("default.password", "123456")
-	viper.SetDefault("default.server_address", "registry.cn-shanghai.aliyuncs.com")
-	viper.SetDefault("default.image_tag", "registry.cn-shanghai.aliyuncs.com/tay3223/images")
-
-	//设定配置文件写入格式为json
-	viper.SetConfigType("toml")
-
-	//指定写入地址，且每一次都是覆盖式写入（因为用户每执行一次init子命令，此处就默认它已经做好了一切被覆盖的心理准备）
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		panic(err)
-	}
-
-	//往这个地方写入一个全局默认配置文件：~/.imageSync
-	defaultConfigPath := homeDir + "/.imageSync"
-	if err := viper.WriteConfigAs(defaultConfigPath); err != nil {
-		return
-	}
-	fmt.Println("配置文件 ~/.imageSync 初始化成功...")
+	return ""
 }
 
 //pflg格式化输入
@@ -95,7 +76,7 @@ func myUsage() {
 
 
 命令用法:  
-1.运行 "imageSync init" 命令生成配置文件 ~/.imageSync
+1.运行 "imageSync ReadConfig" 命令生成配置文件 ~/.imageSync
 2.修改 "~/.imageSync" 配置文件中的内容
 3.在终端中使用 imageSync 命令（例如：imageSync --help）
 
