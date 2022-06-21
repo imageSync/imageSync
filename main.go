@@ -21,7 +21,7 @@ func main() {
 		   这里没有判断linux上的docker服务是否运行，注释记录一下，后面有需要的话再追加上
 		*/
 		fmt.Println("当前操作系统为：Linux")
-		src.Pull(imageName)
+		//src.Pull(imageName)
 		src.Push(imageName)
 
 	case "windows":
