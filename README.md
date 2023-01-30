@@ -9,6 +9,7 @@
 
 > 这里列举一些加速比较好的镜像仓库：
 ```bash
+https://reg-mirror.qiniu.com
 https://hub-mirror.c.163.com
 https://mirror.baidubce.com
 http://f1361db2.m.daocloud.io
