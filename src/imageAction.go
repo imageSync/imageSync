@@ -77,10 +77,17 @@ func imageTagRename(imageName string) (string, string) {
 	//取切割后数组的最后一个
 	repoTag := repoTagList[len(repoTagList)-1]
 
-	//把:号替换为-号
-	repoTag2 := strings.Replace(repoTag, ":", "-", -1)
-	//把.号替换为-号
-	//repoTag3 := strings.Replace(repoTag2, ".", "-", -1)
+	repoTagList2 := strings.Split(repoTag, ":")
+
+	repoTagList3 := repoTagList2[1:]
+
+	var repoTag1 string
+	for _, v := range repoTagList3 {
+		repoTag1 += string(v)
+	}
+
+	//把:号替换为-号（n小于0时表示不限制替换的次数）
+	repoTag2 := strings.Replace(repoTag1, ":", "-", -1)
 
 	//获取配置文件中的image_tag内容
 	imageTag := UserConfig.ImageTag

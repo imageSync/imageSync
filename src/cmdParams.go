@@ -12,7 +12,7 @@ var UserConfig User
 // NewCmdParams 命令行参数
 func NewCmdParams() string {
 	//定义子命令
-	init := pflag.NewFlagSet("ReadConfig", pflag.ExitOnError)
+	init := pflag.NewFlagSet("init", pflag.ExitOnError)
 
 	//定义命令行参数
 	image := pflag.StringP("image", "i", "", "海外的镜像地址（格式：docker.io/nginx:1.21.6）")
@@ -23,7 +23,7 @@ func NewCmdParams() string {
 		fmt.Println("缺少运行参数...")
 		os.Exit(1)
 	} else {
-		//系统参数的第一位时main，判断第二位上的内容是什么，如果是init则执行对应的代码块，否则就去执行普通的命令行参数
+		//系统参数的第一位是main，判断第二位上的内容是什么，如果是init则执行对应的代码块，否则就去执行普通的命令行参数
 		switch os.Args[1] {
 		case "init":
 			if err := init.Parse(os.Args[2:]); err != nil {
@@ -41,8 +41,8 @@ func NewCmdParams() string {
 			//如果env参数长度为0，则强制env=default
 			if len(*env) != 0 {
 				UserConfig = NewUser(WithUsername(*env+".username"), WithPassword(*env+".password"), WithServerAddress(*env+".server_address"), WithImageTag(*env+".image_tag"))
-				fmt.Println(*env + ".username")
 			} else {
+				//如果env参数长度为0，则env=default
 				UserConfig = NewUser(WithUsername("default.username"), WithPassword("default.password"), WithServerAddress("default.server_address"), WithImageTag("default.image_tag"))
 			}
 
@@ -57,7 +57,7 @@ func NewCmdParams() string {
 	return ""
 }
 
-//pflg格式化输入
+// pflg格式化输入
 func wordSepNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	from := []string{"-", "_"}
 	to := "."
@@ -67,16 +67,16 @@ func wordSepNormalizeFunc(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	return pflag.NormalizedName(name)
 }
 
-//命令行提示
+// 命令行提示
 func myUsage() {
 	temp := `工具名称:  imageSync
-工具版本:  0.0.2
+工具版本:  0.0.5
 工具描述:  加速拉取海外的docker镜像，并上传到自己的镜像仓库中。
-详细文档:  https://github.com/tay3223/imageSync/blob/master/README.md
+详细文档:  https://github.com/imageSync/imageSync/blob/master/README.md
 
 
 命令用法:  
-1.运行 "imageSync ReadConfig" 命令生成配置文件 ~/.imageSync
+1.运行 "imageSync init" 命令生成配置文件 ~/.imageSync
 2.修改 "~/.imageSync" 配置文件中的内容
 3.在终端中使用 imageSync 命令（例如：imageSync --help）
 
@@ -85,6 +85,8 @@ func myUsage() {
 imageSync -e <env环境> -i <海外的镜像地址>
 （或）
 imageSync --env=<env环境> --image=<海外的镜像地址>
+
+imageSync --env=default  --image=registry.cn-shanghai.aliyuncs.com/tay3223/images:v1
 
 
 参数说明:

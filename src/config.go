@@ -20,15 +20,14 @@ func init() {
 	}
 }
 
-//初始化配置文件
+// 初始化配置文件
 func initConfig() {
-	viper.SetDefault("env", "default")
 	viper.SetDefault("default.username", "admin")
 	viper.SetDefault("default.password", "123456")
 	viper.SetDefault("default.server_address", "registry.cn-shanghai.aliyuncs.com")
 	viper.SetDefault("default.image_tag", "registry.cn-shanghai.aliyuncs.com/tay3223/images")
 
-	//设定配置文件写入格式为json
+	//设定配置文件写入格式为json或toml
 	viper.SetConfigType("toml")
 
 	//指定写入地址，且每一次都是覆盖式写入（因为用户每执行一次init子命令，此处就默认它已经做好了一切被覆盖的心理准备）

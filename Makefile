@@ -4,7 +4,7 @@
 #要编译的命令名称
 NAME := imageSync
 #版本
-VERSION := 0.0.2
+VERSION := 0.0.5
 #编译输出目录
 OUTPUT_PATH := ./build/${VERSION}/
 #是否开启cgo（0代表不开启，1代表开始）
@@ -35,7 +35,7 @@ clean:
 	rm -rf ./.imageSync
 
 
-#Target：幂等性的检测一下项目依赖
+#Target：项目依赖
 start:
 	go mod tidy
 
