@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"os"
 )
 
-func init() {
+// 读取配置文件
+func readConfig() {
 	homeDir, err := homedir.Dir()
 	if err != nil {
 		panic(err)
@@ -15,8 +17,8 @@ func init() {
 	viper.SetConfigFile(defaultConfigPath)
 	viper.SetConfigType("toml")
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("读取配置文件失败，请执行imagesync init命令，生成默认配置文件，并对内容进行修改...", err)
-		return
+		fmt.Println("读取配置文件失败，请执行imageSync init命令，生成默认配置文件，并对内容进行修改...", err)
+		os.Exit(33)
 	}
 }
 

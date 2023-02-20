@@ -74,6 +74,6 @@ build_mac:
 	CGO_ENABLED=${CGO_STATUS} \
 	go build -o "${OUTPUT_PATH}${baoName}/${NAME}"
 	tar -zcvf ${OUTPUT_PATH}${baoName}.tar.gz -C ${OUTPUT_PATH} ${baoName}
-	cp "${OUTPUT_PATH}${baoName}/${NAME}" /usr/local/bin/
+	cp -f "${OUTPUT_PATH}${baoName}/${NAME}" /usr/local/bin/
 	chmod +x "${OUTPUT_PATH}${baoName}/${NAME}"
 	chmod +x "/usr/local/bin/${NAME}"

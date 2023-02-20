@@ -38,6 +38,9 @@ func NewCmdParams() string {
 			pflag.Usage = myUsage
 			pflag.Parse()
 
+			//读取全局配置文件
+			readConfig()
+
 			//如果env参数长度为0，则强制env=default
 			if len(*env) != 0 {
 				UserConfig = NewUser(WithUsername(*env+".username"), WithPassword(*env+".password"), WithServerAddress(*env+".server_address"), WithImageTag(*env+".image_tag"))
