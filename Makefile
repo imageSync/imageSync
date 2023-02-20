@@ -22,9 +22,9 @@ build_windows: baoName := ${NAME}-${VERSION}-windows-amd64
 
 
 #指定加载哪些伪造的Target
-.PHONY: clean start build_mac build-linux build_windows
+.PHONY: clean  start  build-linux  build_windows  build_mac
 #指定缺省状态下执行哪些Target
-all: clean start build_mac build_linux build_windows
+all: clean  start  build_linux  build_windows  build_mac
 
 
 #Target：主要用来清理一些开发和编译过程中的无用文件
@@ -76,3 +76,4 @@ build_mac:
 	tar -zcvf ${OUTPUT_PATH}${baoName}.tar.gz -C ${OUTPUT_PATH} ${baoName}
 	cp "${OUTPUT_PATH}${baoName}/${NAME}" /usr/local/bin/
 	chmod +x "${OUTPUT_PATH}${baoName}/${NAME}"
+	chmod +x "/usr/local/bin/${NAME}"
